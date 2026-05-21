@@ -1,58 +1,284 @@
 ---
-// src/pages/index.astro
-const site = "https://agesdk.dev";
-const title = "agesdk.dev";
-const description = "<fill in: 1-2 sentence value prop for SEO description>";
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import WaitlistForm from '../components/WaitlistForm.astro';
+import Accordion from '../components/Accordion.astro';
+import Icon from '../components/Icon.astro';
+
+const title = 'AgeSignal — Age Compliance SDK for Expo Apps';
+const description = 'AgeSignal helps Expo and React Native developers add age-aware onboarding, minor-safe defaults, and app-store age signal handling without building compliance plumbing from scratch.';
+
+const heroCode = `const signal = await AgeSignal.getAgeSignal()
+
+if (signal.isMinor) {
+  disablePersonalizedAds()
+  enablePrivateDefaults()
+  hideUnsafeFeatures()
+}`;
+
+const installCode = `npx expo install @agesignal/expo`;
+
+const askCode = `import { useAgeSignal } from "@agesignal/expo"
+
+const { signal, request } = useAgeSignal()
+
+await request({ reason: "personalize_safely" })`;
+
+const behaviorCode = `if (signal?.isMinor) {
+  setAdsMode("contextual")
+  setDiscoveryMode("safe")
+  hideFeature("dm")
+}`;
+
+const providerCode = `import { AgeSignalProvider, useAgeSignal } from "@agesignal/expo"
+
+function App() {
+  return (
+    <AgeSignalProvider>
+      <Home />
+    </AgeSignalProvider>
+  )
+}`;
+
+const whyItems = [
+  { icon: 'package', title: 'Expo-first SDK', body: 'Drop-in for managed Expo. Works in bare React Native too. Typed, tiny, and predictable.' },
+  { icon: 'shield', title: 'Minor-safe defaults', body: 'One signal, sensible defaults. Disable personalized ads, lock down discovery, hide unsafe features.' },
+  { icon: 'zap', title: 'Self-serve setup', body: 'Install, wrap your app, ship. No sales calls, no MSA, no enterprise onboarding.' },
+];
+
+const steps = [
+  { n: '01', title: 'Install the SDK', body: 'Add the package to your Expo or bare RN project.' },
+  { n: '02', title: 'Ask for an age signal', body: 'Request a signal from the OS, app store, or your onboarding flow.' },
+  { n: '03', title: 'Change app behavior safely', body: 'Branch on signal.isMinor and apply minor-safe defaults.' },
+];
+
+const useCases = [
+  { icon: 'eye-off', t: 'Disable personalized ads for minors', d: 'Switch to contextual ads automatically.' },
+  { icon: 'shield', t: 'Hide adult or unsafe features', d: 'Gate adult content based on the signal.' },
+  { icon: 'lock', t: 'Turn on private defaults', d: 'Private profile, restricted DMs, opt-out analytics.' },
+  { icon: 'messages-square', t: 'Gate chat, discovery, or sharing', d: 'Limit risky social surfaces for minors.' },
+  { icon: 'scroll-text', t: 'Log age-related decisions', d: 'Local, auditable trail of what you applied and why.' },
+  { icon: 'smartphone', t: 'Prepare for app-store age signals', d: 'Wire into emerging iOS & Android APIs as they land.' },
+];
+
+const plans = [
+  { name: 'Starter', price: '$19', for: 'For solo Expo apps' },
+  { name: 'Pro', price: '$49', for: 'For growing consumer apps', featured: true },
+  { name: 'Team', price: '$99', for: 'For small teams with multiple apps' },
+];
+
+const faqs = [
+  { q: 'Is this age verification?', a: 'No. AgeSignal is an age-aware behavior SDK. It surfaces a signal (e.g. likely-minor / likely-adult) from sources you choose — onboarding, OS APIs, or app-store age signals — and lets your app adapt. Hard identity verification is a different problem with different vendors.' },
+  { q: 'Does this replace a lawyer?', a: 'No. AgeSignal is developer infrastructure. It helps you implement minor-safe defaults and audit logs, but reviewing your legal obligations is on you and your counsel.' },
+  { q: 'Does this work with Expo?', a: "Yes — Expo is the primary target. Drop in @agesignal/expo, wrap your app, and you're done. No custom dev client required for the JS layer." },
+  { q: 'Does this support bare React Native?', a: 'Yes. The core works in bare RN. Native age-signal APIs are surfaced where available on each platform.' },
+  { q: 'Will this handle California age-signal rules?', a: "AgeSignal is being built with California-style age-signal expectations in mind, plus emerging app-store signals on iOS and Android. We can't guarantee any specific legal outcome — that depends on your app and counsel." },
+  { q: 'Can I use it before the law takes effect?', a: "Yes. Most teams adopt minor-safe defaults early so you're not scrambling at the deadline. Join the waitlist to get in on the first cohort." },
+];
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={site} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<BaseLayout title={title} description={description} path="/">
+  <div class="min-h-screen flex flex-col">
+    <Navbar />
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={site} />
-    <meta property="og:site_name" content="agesdk.dev" />
+    {/* Hero */}
+    <section class="relative overflow-hidden">
+      <div class="absolute inset-0 grid-bg pointer-events-none"></div>
+      <div class="relative mx-auto max-w-6xl px-4 sm:px-6 pt-20 pb-24 lg:pt-28 lg:pb-32">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <div class="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground">
+              <Icon name="sparkles" class="size-3 text-primary" />
+              Built for Expo & React Native
+            </div>
+            <h1 class="mt-5 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]">
+              Age compliance SDK for{' '}
+              <span class="text-gradient">Expo apps</span>
+            </h1>
+            <p class="mt-5 text-lg text-muted-foreground max-w-xl leading-relaxed">
+              Add age-aware onboarding, minor-safe defaults, and app-store age signal handling to your React Native app — without building compliance plumbing from scratch.
+            </p>
+            <div class="mt-7 flex flex-wrap gap-3" id="waitlist">
+              <WaitlistForm />
+            </div>
+            <div class="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+              <span class="flex items-center gap-1.5"><Icon name="check" class="size-3.5 text-primary" /> Self-serve</span>
+              <span class="flex items-center gap-1.5"><Icon name="check" class="size-3.5 text-primary" /> Expo-first</span>
+              <span class="flex items-center gap-1.5"><Icon name="check" class="size-3.5 text-primary" /> No enterprise sales</span>
+            </div>
+            <div class="mt-6">
+              <a href="#sdk-preview">
+                <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 text-muted-foreground hover:text-foreground hover:bg-accent">
+                  See SDK example <Icon name="arrow-right" class="ml-1 size-4" />
+                </button>
+              </a>
+            </div>
+          </div>
 
-    <!-- Twitter card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+          <div class="lg:pl-6">
+            <CodeBlock filename="App.tsx" code={heroCode} />
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <!-- JSON-LD structured data: Organization + WebSite (static; domain
-         is known at scaffold time. Update description by hand if needed.) -->
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://agesdk.dev/#organization",
-      "name": "agesdk.dev",
-      "url": "https://agesdk.dev/"
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://agesdk.dev/#website",
-      "url": "https://agesdk.dev/",
-      "name": "agesdk.dev",
-      "publisher": { "@id": "https://agesdk.dev/#organization" }
-    }
-  ]
-}
-    </script>
-  </head>
-  <body>
-    <main>
-      <h1>{title}</h1>
-      <p>Scaffolded via <code>portfolio new bootstrap</code>.</p>
-    </main>
-  </body>
-</html>
+    {/* Problem */}
+    <section class="mx-auto max-w-6xl px-4 sm:px-6 py-20">
+      <div class="max-w-3xl">
+        <div class="text-xs font-mono uppercase tracking-wider text-primary">The problem</div>
+        <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">
+          Age rules are coming to consumer apps
+        </h2>
+        <p class="mt-4 text-muted-foreground leading-relaxed text-lg">
+          California and other states are pushing apps toward age-aware experiences. Small teams now need practical app behavior changes: safer defaults, age gates, privacy choices, and auditability.
+        </p>
+      </div>
+    </section>
+
+    {/* Why */}
+    <section class="mx-auto max-w-6xl px-4 sm:px-6 py-12">
+      <div class="text-xs font-mono uppercase tracking-wider text-primary">Why AgeSignal</div>
+      <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">Built for the way you ship</h2>
+      <div class="mt-10 grid md:grid-cols-3 gap-5">
+        {whyItems.map((f) => (
+          <div class="rounded-2xl border border-border bg-card/60 p-6 hover:border-primary/40 transition">
+            <div class="grid size-10 place-items-center rounded-lg bg-gradient-brand shadow-glow">
+              <Icon name={f.icon} class="size-5 text-primary-foreground" />
+            </div>
+            <div class="mt-4 font-semibold">{f.title}</div>
+            <p class="mt-2 text-sm text-muted-foreground leading-relaxed">{f.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {/* How it works */}
+    <section class="mx-auto max-w-6xl px-4 sm:px-6 py-20">
+      <div class="text-xs font-mono uppercase tracking-wider text-primary">How it works</div>
+      <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">Three steps to age-aware</h2>
+
+      <div class="mt-12 grid lg:grid-cols-2 gap-10 items-start">
+        <div class="space-y-8">
+          {steps.map((s) => (
+            <div class="flex gap-5">
+              <div class="font-mono text-sm text-primary pt-1">{s.n}</div>
+              <div>
+                <div class="font-semibold">{s.title}</div>
+                <p class="mt-1 text-sm text-muted-foreground">{s.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="space-y-4">
+          <CodeBlock filename="1. install" language="bash" code={installCode} />
+          <CodeBlock filename="2. request signal" code={askCode} />
+          <CodeBlock filename="3. branch behavior" code={behaviorCode} />
+        </div>
+      </div>
+    </section>
+
+    {/* Use cases */}
+    <section class="mx-auto max-w-6xl px-4 sm:px-6 py-20">
+      <div class="text-xs font-mono uppercase tracking-wider text-primary">Use cases</div>
+      <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">What you can build</h2>
+      <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {useCases.map((u) => (
+          <div class="rounded-xl border border-border bg-card/40 p-5 hover:bg-card/70 transition">
+            <Icon name={u.icon} class="size-5 text-primary" />
+            <div class="mt-3 font-medium">{u.t}</div>
+            <p class="mt-1.5 text-sm text-muted-foreground">{u.d}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {/* SDK preview */}
+    <section id="sdk-preview" class="mx-auto max-w-6xl px-4 sm:px-6 py-20">
+      <div class="grid lg:grid-cols-2 gap-10 items-center">
+        <div>
+          <div class="text-xs font-mono uppercase tracking-wider text-primary">SDK preview</div>
+          <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">Feels like a Stripe SDK, fits in an Expo app</h2>
+          <p class="mt-4 text-muted-foreground leading-relaxed">
+            A single provider, a single hook, and a typed signal. No native module gymnastics, no config matrix.
+          </p>
+          <div class="mt-6 flex gap-3">
+            <a href="/docs">
+              <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 border border-input bg-background hover:bg-accent hover:text-accent-foreground">Read the docs</button>
+            </a>
+            <a href="#waitlist">
+              <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 bg-gradient-brand text-primary-foreground hover:opacity-90 shadow-glow">
+                <Icon name="terminal" class="mr-2 size-4" /> Join waitlist
+              </button>
+            </a>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <CodeBlock filename="terminal" language="bash" code={'npm install @agesignal/expo'} />
+          <CodeBlock filename="App.tsx" code={providerCode} />
+        </div>
+      </div>
+    </section>
+
+    {/* Pricing preview */}
+    <section class="mx-auto max-w-6xl px-4 sm:px-6 py-20">
+      <div class="text-center max-w-2xl mx-auto">
+        <div class="text-xs font-mono uppercase tracking-wider text-primary">Pricing</div>
+        <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">Simple, builder-friendly pricing</h2>
+        <p class="mt-3 text-muted-foreground">All plans launch with the SDK. Join the waitlist for early pricing.</p>
+      </div>
+      <div class="mt-12 grid md:grid-cols-3 gap-5">
+        {plans.map((p) => (
+          <div class={`rounded-2xl border p-7 bg-card/50 ${p.featured ? 'border-primary/60 shadow-glow' : 'border-border'}`}>
+            <div class="flex items-center justify-between">
+              <div class="font-semibold">{p.name}</div>
+              <span class="text-[10px] uppercase tracking-wider rounded-full border border-border px-2 py-0.5 text-muted-foreground">Coming soon</span>
+            </div>
+            <div class="mt-4 flex items-baseline gap-1">
+              <span class="text-4xl font-semibold">{p.price}</span>
+              <span class="text-muted-foreground">/mo</span>
+            </div>
+            <p class="mt-2 text-sm text-muted-foreground">{p.for}</p>
+            <button disabled class="mt-6 w-full inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 bg-primary text-primary-foreground opacity-60 cursor-not-allowed">Coming soon</button>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {/* Disclaimer */}
+    <section class="mx-auto max-w-4xl px-4 sm:px-6 py-12">
+      <div class="rounded-xl border border-border bg-card/40 p-5 text-sm text-muted-foreground flex gap-3">
+        <Icon name="shield" class="size-4 mt-0.5 text-primary shrink-0" />
+        <p>
+          <span class="text-foreground font-medium">AgeSignal is developer infrastructure, not legal advice.</span>{' '}
+          You are responsible for reviewing your obligations with counsel.
+        </p>
+      </div>
+    </section>
+
+    {/* FAQ */}
+    <section id="faq" class="mx-auto max-w-3xl px-4 sm:px-6 py-20">
+      <div class="text-xs font-mono uppercase tracking-wider text-primary">FAQ</div>
+      <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">Questions, answered honestly</h2>
+      <Accordion items={faqs} />
+    </section>
+
+    {/* CTA */}
+    <section class="mx-auto max-w-4xl px-4 sm:px-6 py-20">
+      <div class="rounded-3xl border border-border bg-card/60 p-10 text-center shadow-glow">
+        <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight">
+          Ship age-aware behavior before the deadline
+        </h2>
+        <p class="mt-3 text-muted-foreground max-w-xl mx-auto">
+          Join the waitlist and get early access plus founder pricing.
+        </p>
+        <div class="mt-6 flex justify-center">
+          <WaitlistForm />
+        </div>
+      </div>
+    </section>
+
+    <Footer />
+  </div>
+</BaseLayout>

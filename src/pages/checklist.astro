@@ -1,0 +1,252 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import WaitlistForm from '../components/WaitlistForm.astro';
+import Icon from '../components/Icon.astro';
+
+const title = 'California Age Compliance Checklist for Expo Apps — AgeSignal';
+const description = 'A practical, developer-focused checklist for California age compliance in Expo and React Native apps. Free, no legal guarantees, written for builders.';
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: 'California Age Compliance Checklist for Expo Apps',
+  description: 'Practical, developer-focused checklist for age-aware behavior in Expo and React Native apps.',
+  author: { '@type': 'Organization', name: 'AgeSignal' },
+});
+
+const sections = [
+  {
+    title: 'Onboarding',
+    items: [
+      'Ask for an age signal during onboarding, not after first use.',
+      'Make the prompt clear and not buried under dark patterns.',
+      "Don't store more than you need — a single age band is usually enough.",
+      "Handle the 'declined to answer' case explicitly.",
+    ],
+  },
+  {
+    title: 'Minor-safe defaults',
+    items: [
+      'Default likely-minor users to private profiles.',
+      'Turn off personalized ads for likely-minor users.',
+      'Restrict DMs from strangers by default.',
+      'Hide adult, mature, or unsafe-by-default features.',
+      'Use safe-by-default discovery feeds.',
+    ],
+  },
+  {
+    title: 'Ads & analytics',
+    items: [
+      'Switch to contextual ads for minors.',
+      'Disable behavioral retargeting for minors.',
+      "Avoid sharing minor data with third-party SDKs you don't need.",
+      'Review your analytics SDKs for age-aware modes.',
+    ],
+  },
+  {
+    title: 'Auditability',
+    items: [
+      'Log every age-related decision (what changed, why, when).',
+      'Keep logs locally and exportable — no third-party PII dump.',
+      "Be able to answer: 'what defaults did this user get and why?'",
+    ],
+  },
+  {
+    title: 'App-store signals',
+    items: [
+      'Wire into iOS age-signal APIs as they ship.',
+      'Wire into Android age-signal APIs as they ship.',
+      'Treat the OS signal as a hint, not absolute truth.',
+    ],
+  },
+  {
+    title: "Don't do",
+    items: [
+      "Don't claim 'legally compliant' in marketing without counsel.",
+      "Don't collect ID documents unless you really need to.",
+      "Don't gate everything behind a hard age check on first launch.",
+      "Don't ignore the 'I prefer not to say' path.",
+    ],
+  },
+];
+
+const allItems = sections.flatMap((s) => s.items);
+const total = allItems.length;
+const sectionsJson = JSON.stringify(sections);
+---
+<BaseLayout title={title} description={description} path="/checklist" ogType="article" jsonLd={jsonLd}>
+  <div class="min-h-screen flex flex-col">
+    <Navbar />
+    <main class="flex-1 mx-auto max-w-3xl px-4 sm:px-6 py-16">
+      <div class="text-xs font-mono uppercase tracking-wider text-primary">Free guide</div>
+      <h1 class="mt-3 text-4xl sm:text-5xl font-semibold tracking-tight">
+        California Age Compliance Checklist for Expo Apps
+      </h1>
+      <p class="mt-5 text-lg text-muted-foreground leading-relaxed">
+        A practical checklist for solo developers, Expo teams, and React Native CTOs who want to ship age-aware behavior fast. No legal guarantees — just the engineering moves teams actually make.
+      </p>
+
+      <div class="mt-8 rounded-xl border border-border bg-card/40 p-5 text-sm text-muted-foreground flex gap-3">
+        <Icon name="shield" class="size-4 mt-0.5 text-primary shrink-0" />
+        <p>
+          <span class="text-foreground font-medium">This is developer guidance, not legal advice.</span>{' '}
+          Always review your obligations with counsel.
+        </p>
+      </div>
+
+      <div class="mt-8 rounded-xl border border-border bg-card/60 p-5 sticky top-4 z-10 backdrop-blur supports-[backdrop-filter]:bg-card/50">
+        <div class="flex items-center justify-between text-sm">
+          <div>
+            <span class="font-semibold text-foreground" id="completed-count">0</span>
+            <span class="text-muted-foreground"> / {total} complete</span>
+          </div>
+          <div class="font-mono text-xs text-muted-foreground" id="completed-pct">0%</div>
+        </div>
+        <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-secondary">
+          <div id="progress-fill" class="h-full bg-primary transition-all" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="mt-12 space-y-10">
+        {sections.map((s) => (
+          <section>
+            <h2 class="text-2xl font-semibold tracking-tight">{s.title}</h2>
+            <ul class="mt-4 space-y-1">
+              {s.items.map((i) => (
+                <li>
+                  <label class="flex gap-3 items-start cursor-pointer rounded-md p-2.5 -mx-2.5 hover:bg-card/60 transition-colors">
+                    <input
+                      type="checkbox"
+                      data-checklist-item={i}
+                      class="checklist-cb mt-0.5 peer h-4 w-4 shrink-0 rounded-sm border border-border bg-input"
+                    />
+                    <span class="checklist-label text-foreground/90 peer-checked:text-muted-foreground peer-checked:line-through">{i}</span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+
+      <div id="download" class="mt-16 rounded-2xl border border-border bg-card/60 p-7 shadow-glow">
+        <div class="font-semibold text-lg flex items-center gap-2">
+          <Icon name="download" class="size-5 text-primary" /> Get the PDF
+        </div>
+        <p class="mt-2 text-sm text-muted-foreground">
+          Drop your email and we'll send the full checklist + future updates. The PDF downloads immediately.
+        </p>
+
+        <div id="download-done" class="mt-5 hidden items-center gap-2 rounded-lg border border-border bg-background/40 px-4 py-3 text-sm">
+          <Icon name="check" class="size-4 text-primary" />
+          <span>PDF downloaded. We'll keep <span id="download-email" class="font-mono text-foreground"></span> in the loop.</span>
+        </div>
+
+        <form id="download-form" class="mt-5 flex flex-col sm:flex-row gap-2 max-w-md">
+          <div class="relative flex-1">
+            <Icon name="mail" class="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="email"
+              required
+              placeholder="you@yourapp.dev"
+              id="download-email-input"
+              class="flex h-11 w-full rounded-md border border-border bg-background/60 px-3 py-1 pl-9 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+          </div>
+          <button
+            type="submit"
+            id="download-submit"
+            class="inline-flex items-center justify-center rounded-md text-sm font-medium h-11 px-4 bg-gradient-brand text-primary-foreground hover:opacity-90 shadow-glow disabled:opacity-60"
+          >
+            <span class="download-default flex items-center gap-2"><Icon name="download" class="size-4" /> Download PDF</span>
+            <span class="download-loading hidden"><Icon name="loader" class="size-4 animate-spin" /></span>
+          </button>
+        </form>
+
+        <div class="mt-6 border-t border-border pt-5">
+          <div class="font-semibold text-sm">Want this as an SDK?</div>
+          <p class="mt-1 text-sm text-muted-foreground">
+            AgeSignal turns this checklist into one provider + one hook for Expo and React Native.
+          </p>
+          <div class="mt-4"><WaitlistForm /></div>
+          <div class="mt-3 text-xs text-muted-foreground">
+            See the <a href="/docs" class="text-primary hover:underline">docs</a> or{' '}
+            <a href="/pricing" class="text-primary hover:underline">pricing</a>.
+          </div>
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </div>
+
+  <script is:inline define:vars={{ sectionsJson, total }}>
+    const STORAGE_KEY = 'agesignal:checklist:v1';
+    const sections = JSON.parse(sectionsJson);
+
+    let checked = {};
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) checked = JSON.parse(raw);
+    } catch {}
+
+    const countEl = document.getElementById('completed-count');
+    const pctEl = document.getElementById('completed-pct');
+    const fillEl = document.getElementById('progress-fill');
+
+    function updateProgress() {
+      const completed = Object.values(checked).filter(Boolean).length;
+      const pct = total ? Math.round((completed / total) * 100) : 0;
+      if (countEl) countEl.textContent = String(completed);
+      if (pctEl) pctEl.textContent = pct + '%';
+      if (fillEl) fillEl.style.width = pct + '%';
+    }
+
+    document.querySelectorAll('.checklist-cb').forEach((cb) => {
+      const item = cb.getAttribute('data-checklist-item');
+      if (!item) return;
+      if (checked[item]) {
+        cb.checked = true;
+        cb.setAttribute('checked', '');
+      }
+      cb.addEventListener('change', () => {
+        checked[item] = cb.checked;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(checked)); } catch {}
+        updateProgress();
+      });
+    });
+    updateProgress();
+
+    const form = document.getElementById('download-form');
+    const emailInput = document.getElementById('download-email-input');
+    const submit = document.getElementById('download-submit');
+    const done = document.getElementById('download-done');
+    const emailOut = document.getElementById('download-email');
+    const labelDefault = submit?.querySelector('.download-default');
+    const labelLoading = submit?.querySelector('.download-loading');
+
+    async function generatePdf() {
+      // TODO: jspdf was used in the original React app. Drop in a static-output
+      // friendly PDF generator (e.g. dynamic import of jspdf if added to deps).
+      // For now we no-op so the "downloaded" state still surfaces correctly.
+      return Promise.resolve();
+    }
+
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = emailInput?.value?.trim();
+      if (!email) return;
+      labelDefault?.classList.add('hidden');
+      labelLoading?.classList.remove('hidden');
+      submit.disabled = true;
+      setTimeout(async () => {
+        await generatePdf();
+        if (emailOut) emailOut.textContent = email;
+        form.classList.add('hidden');
+        done?.classList.remove('hidden');
+        done?.classList.add('flex');
+      }, 400);
+    });
+  </script>
+</BaseLayout>

@@ -1,0 +1,150 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import Icon from '../components/Icon.astro';
+
+const title = 'Docs — AgeSignal SDK for Expo';
+const description = 'Install, configure, and request an age signal in your Expo or React Native app with the AgeSignal SDK.';
+
+const install = `npx expo install @agesignal/expo`;
+const provider = `// App.tsx
+import { AgeSignalProvider } from "@agesignal/expo"
+
+export default function App() {
+  return (
+    <AgeSignalProvider apiKey={process.env.EXPO_PUBLIC_AGESIGNAL_KEY}>
+      <RootNavigator />
+    </AgeSignalProvider>
+  )
+}`;
+const useHook = `import { useAgeSignal } from "@agesignal/expo"
+
+function Onboarding() {
+  const { signal, request, loading } = useAgeSignal()
+
+  if (!signal) {
+    return <Button onPress={request}>Continue</Button>
+  }
+
+  return signal.isMinor ? <MinorHome /> : <AdultHome />
+}`;
+const branching = `if (signal.isMinor) {
+  setAdsMode("contextual")
+  setDiscoveryMode("safe")
+  hideFeature("dm")
+  enablePrivateDefaults()
+}`;
+const audit = `await AgeSignal.log({
+  decision: "disabled_personalized_ads",
+  reason: "signal.isMinor === true",
+})`;
+
+const navItems: Array<[string, string]> = [
+  ['install', 'Install'],
+  ['provider', 'Provider'],
+  ['request', 'Request signal'],
+  ['behavior', 'Adapt behavior'],
+  ['audit', 'Audit log'],
+  ['platforms', 'Platforms'],
+];
+---
+<BaseLayout title={title} description={description} path="/docs">
+  <div class="min-h-screen flex flex-col">
+    <Navbar />
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 py-12 lg:py-16 grid lg:grid-cols-[220px_1fr] gap-12 flex-1">
+      <aside class="hidden lg:block">
+        <div class="sticky top-20 text-sm">
+          <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">
+            <Icon name="book" class="size-3.5" /> Docs
+          </div>
+          <ul class="space-y-2">
+            {navItems.map(([id, label]) => (
+              <li>
+                <a href={`#${id}`} class="text-muted-foreground hover:text-foreground transition">{label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+
+      <main class="space-y-14 max-w-3xl">
+        <div>
+          <div class="text-xs font-mono uppercase tracking-wider text-primary">v0 preview</div>
+          <h1 class="mt-2 text-4xl font-semibold tracking-tight">AgeSignal SDK</h1>
+          <p class="mt-3 text-muted-foreground text-lg">
+            Add age-aware behavior to your Expo or React Native app in under five minutes.
+          </p>
+        </div>
+
+        <section id="install" class="scroll-mt-20">
+          <h2 class="text-2xl font-semibold tracking-tight">Install</h2>
+          <div class="mt-4 space-y-4 text-muted-foreground leading-relaxed">
+            <p>Add the SDK to your Expo project.</p>
+            <CodeBlock filename="terminal" language="bash" code={install} />
+          </div>
+        </section>
+
+        <section id="provider" class="scroll-mt-20">
+          <h2 class="text-2xl font-semibold tracking-tight">Wrap your app in the provider</h2>
+          <div class="mt-4 space-y-4 text-muted-foreground leading-relaxed">
+            <p>The provider initializes the SDK and exposes the signal via hooks.</p>
+            <CodeBlock filename="App.tsx" code={provider} />
+          </div>
+        </section>
+
+        <section id="request" class="scroll-mt-20">
+          <h2 class="text-2xl font-semibold tracking-tight">Request an age signal</h2>
+          <div class="mt-4 space-y-4 text-muted-foreground leading-relaxed">
+            <p>
+              Use <code class="text-foreground">useAgeSignal()</code> in any component. The signal can come from onboarding, the OS, or an app-store API.
+            </p>
+            <CodeBlock filename="Onboarding.tsx" code={useHook} />
+          </div>
+        </section>
+
+        <section id="behavior" class="scroll-mt-20">
+          <h2 class="text-2xl font-semibold tracking-tight">Adapt app behavior</h2>
+          <div class="mt-4 space-y-4 text-muted-foreground leading-relaxed">
+            <p>Branch on the signal and apply minor-safe defaults — the whole point of the SDK.</p>
+            <CodeBlock filename="behavior.ts" code={branching} />
+          </div>
+        </section>
+
+        <section id="audit" class="scroll-mt-20">
+          <h2 class="text-2xl font-semibold tracking-tight">Audit log</h2>
+          <div class="mt-4 space-y-4 text-muted-foreground leading-relaxed">
+            <p>Log age-related decisions locally so you can show your work later.</p>
+            <CodeBlock filename="audit.ts" code={audit} />
+          </div>
+        </section>
+
+        <section id="platforms" class="scroll-mt-20">
+          <h2 class="text-2xl font-semibold tracking-tight">Platforms</h2>
+          <div class="mt-4 space-y-4 text-muted-foreground leading-relaxed">
+            <ul class="list-disc pl-5 space-y-1.5">
+              <li>Expo SDK 50+ (managed and dev client)</li>
+              <li>Bare React Native 0.73+</li>
+              <li>iOS 16+ — wires into emerging Apple age-signal APIs</li>
+              <li>Android 13+ — wires into Google age-signal APIs</li>
+            </ul>
+          </div>
+        </section>
+
+        <div class="rounded-2xl border border-border bg-card/60 p-6 flex items-center justify-between">
+          <div>
+            <div class="font-semibold">Ready to try AgeSignal?</div>
+            <p class="text-sm text-muted-foreground">Join the waitlist for early access.</p>
+          </div>
+          <a href="/">
+            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 bg-gradient-brand text-primary-foreground hover:opacity-90">
+              Join waitlist <Icon name="arrow-right" class="ml-1 size-4" />
+            </button>
+          </a>
+        </div>
+      </main>
+    </div>
+    <Footer />
+  </div>
+</BaseLayout>

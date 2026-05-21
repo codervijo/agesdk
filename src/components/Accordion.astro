@@ -1,0 +1,67 @@
+---
+import Icon from './Icon.astro';
+
+interface Item { q: string; a: string }
+interface Props { items: Item[]; class?: string }
+const { items, class: className = '' } = Astro.props;
+---
+<div class={`accordion mt-8 ${className}`} data-type="single">
+  {items.map((item, idx) => (
+    <div class="accordion-item border-b border-border" data-open="false">
+      <h3>
+        <button
+          type="button"
+          class="accordion-trigger text-left flex flex-1 w-full items-center justify-between py-4 text-sm font-medium transition-all hover:underline"
+          aria-expanded="false"
+          aria-controls={`acc-panel-${idx}`}
+          id={`acc-trigger-${idx}`}
+        >
+          <span>{item.q}</span>
+          <Icon name="chevron-down" class="size-4 shrink-0 transition-transform duration-200 accordion-chevron" />
+        </button>
+      </h3>
+      <div
+        id={`acc-panel-${idx}`}
+        role="region"
+        aria-labelledby={`acc-trigger-${idx}`}
+        class="accordion-content hidden overflow-hidden text-sm text-muted-foreground leading-relaxed"
+      >
+        <div class="pb-4 pt-0">{item.a}</div>
+      </div>
+    </div>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.accordion').forEach((root) => {
+    const type = root.dataset.type ?? 'single';
+    const items = Array.from(root.querySelectorAll<HTMLElement>('.accordion-item'));
+    items.forEach((item) => {
+      const trigger = item.querySelector<HTMLButtonElement>('.accordion-trigger');
+      const panel = item.querySelector<HTMLElement>('.accordion-content');
+      const chevron = item.querySelector<HTMLElement>('.accordion-chevron');
+      trigger?.addEventListener('click', () => {
+        const isOpen = item.dataset.open === 'true';
+        if (type === 'single') {
+          items.forEach((other) => {
+            if (other === item) return;
+            other.dataset.open = 'false';
+            other.querySelector<HTMLElement>('.accordion-content')?.classList.add('hidden');
+            other.querySelector<HTMLButtonElement>('.accordion-trigger')?.setAttribute('aria-expanded', 'false');
+            other.querySelector<HTMLElement>('.accordion-chevron')?.style.removeProperty('transform');
+          });
+        }
+        item.dataset.open = (!isOpen).toString();
+        if (isOpen) {
+          panel?.classList.add('hidden');
+          trigger?.setAttribute('aria-expanded', 'false');
+          chevron?.style.removeProperty('transform');
+        } else {
+          panel?.classList.remove('hidden');
+          trigger?.setAttribute('aria-expanded', 'true');
+          if (chevron) chevron.style.transform = 'rotate(180deg)';
+        }
+      });
+    });
+  });
+</script>

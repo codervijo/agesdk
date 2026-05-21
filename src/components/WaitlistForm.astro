@@ -1,0 +1,58 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+const widthClass = compact ? '' : 'max-w-md';
+---
+<div class={`waitlist-wrap ${widthClass}`} data-state="idle">
+  <form class="waitlist-form flex flex-col sm:flex-row gap-2">
+    <input
+      type="email"
+      required
+      placeholder="you@yourapp.dev"
+      name="email"
+      class="waitlist-input flex h-11 w-full rounded-md border border-border bg-card/60 px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+    />
+    <button
+      type="submit"
+      class="waitlist-submit inline-flex items-center justify-center rounded-md text-sm font-medium h-11 px-4 bg-gradient-brand text-primary-foreground hover:opacity-90 shadow-glow disabled:opacity-60"
+    >
+      <span class="label-default">Join waitlist</span>
+      <span class="label-loading hidden"><Icon name="loader" class="size-4 animate-spin" /></span>
+    </button>
+  </form>
+  <div class={`waitlist-done hidden items-center gap-2 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm ${compact ? '' : 'max-w-md'}`}>
+    <Icon name="check" class="size-4 text-primary" />
+    <span>You're on the list. We'll email <span class="waitlist-email font-mono text-foreground"></span> when the SDK is ready.</span>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.waitlist-wrap').forEach((wrap) => {
+    const form = wrap.querySelector<HTMLFormElement>('.waitlist-form');
+    const input = wrap.querySelector<HTMLInputElement>('.waitlist-input');
+    const submit = wrap.querySelector<HTMLButtonElement>('.waitlist-submit');
+    const labelDefault = wrap.querySelector('.label-default');
+    const labelLoading = wrap.querySelector('.label-loading');
+    const done = wrap.querySelector<HTMLElement>('.waitlist-done');
+    const emailOut = wrap.querySelector<HTMLElement>('.waitlist-email');
+
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = input?.value?.trim();
+      if (!email) return;
+      labelDefault?.classList.add('hidden');
+      labelLoading?.classList.remove('hidden');
+      if (submit) submit.disabled = true;
+      setTimeout(() => {
+        if (emailOut) emailOut.textContent = email;
+        form.classList.add('hidden');
+        done?.classList.remove('hidden');
+        done?.classList.add('flex');
+      }, 700);
+    });
+  });
+</script>
