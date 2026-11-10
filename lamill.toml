@@ -11,6 +11,10 @@ custom_domains = [
     "agesdk.dev",
 ]
 
+[index]
+indexnow_key = "472175775c42a1d8d87c58b0716e5772"
+indexnow_enabled = true
+
 [stack]
 framework = "astro"
 
